@@ -308,8 +308,7 @@
                 'https://i.imgur.com/UKcTtbp.png',
                 'https://i.imgur.com/mZjptWv.png',
                 'https://i.imgur.com/b1yc7Gz.png',
-                'https://i.imgur.com/uZU9b37.jpg',
-                'https://i.imgur.com/vn59zkJ.jpeg'
+                'https://i.imgur.com/uZU9b37.jpg'
             ];
 
             const blankImageUrl = 'https://i.imgur.com/vn59zkJ.jpeg';
@@ -379,7 +378,7 @@
                 const page2Index = currentPage + 1;
 
                 const page1Src = collectedPages.has(page1Index) ? images[page1Index] : blankImageUrl;
-                const page2Src = page2Index < images.length ? (collectedPages.has(page2Index) ? images[page2Index] : blankImageUrl) : '';
+                const page2Src = page2Index < images.length ? (collectedPages.has(page2Index) ? images[page2Index] : blankImageUrl) : blankImageUrl;
 
                 page1Img.src = page1Src;
                 page2Img.src = page2Src;
