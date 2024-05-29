@@ -308,7 +308,8 @@
                 'https://i.imgur.com/UKcTtbp.png',
                 'https://i.imgur.com/mZjptWv.png',
                 'https://i.imgur.com/b1yc7Gz.png',
-                'https://i.imgur.com/uZU9b37.jpg'
+                'https://i.imgur.com/uZU9b37.jpg',
+                'https://i.imgur.com/vn59zkJ.jpeg'
             ];
 
             const blankImageUrl = 'https://i.imgur.com/vn59zkJ.jpeg';
@@ -410,9 +411,10 @@
                 return startPage;
             };
 
-            const isLastCollectedPage = (page) => {
+            const isLastCollectedPair = (page) => {
                 const highestCollectedPage = Math.max(...collectedPages);
-                return page >= highestCollectedPage;
+                const lastCollectedPair = getPairStartIndex(highestCollectedPage);
+                return page >= lastCollectedPair;
             };
 
             const updateCollectedList = () => {
@@ -469,8 +471,8 @@
 
             document.getElementById('next').addEventListener('click', () => {
                 clearError();
-                if (isLastCollectedPage(currentPage + 2)) {
-                    displayError("You're already at the last collected page.");
+                if (isLastCollectedPair(currentPage + 2)) {
+                    displayError("You've reached the last collected pair of pages.");
                 } else {
                     currentPage = findNextCollectedPage(currentPage + 2);
                     updatePages();
