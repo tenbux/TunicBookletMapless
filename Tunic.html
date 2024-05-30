@@ -5,71 +5,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tunic Mapless Booklet</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body.light-mode {
-            background-color: white;
-            color: black;
+        /* (Original styles unchanged) */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1e1e1e;
+            color: #c7c7c7;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        body.dark-mode {
-            background-color: #121212;
-            color: white;
-        }
-
-        #fixedContainer {
+        .dark-mode-toggle-button {
             position: fixed;
             top: 10px;
-            width: 100%;
-            background-color: inherit;
-            z-index: 100;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ccc;
+            right: 10px;
+            z-index: 10;
+            background-color: #444;
+            border: none;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
 
-        .book {
+        .dark-mode-toggle-button:hover {
+            background-color: #666;
+        }
+
+        .main-display {
+            width: 100%;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+        }
+
+        .pages-container,
+        .collected-pair-container {
+            display: flex;
+            justify-content: space-around;
+            width: 80vw;
+            margin-top: 10px;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-label {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px;
+            margin-bottom: 10px;
         }
 
         .page {
-            max-width: 45vw;
-            max-height: 45vh;
+            width: 40vw;
+            height: 45vh;
             margin: 10px;
             border: 1px solid #000;
             background-color: #fff;
             cursor: pointer;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
         }
 
-        body.dark-mode .page {
-            background-color: #333;
-            border: 1px solid #ccc;
-        }
-
-        .page img {
-            display: block;
+        .page img,
+        .modal img {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            max-height: 80vh;
         }
 
         .controls {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            width: 80vw;
             margin-top: 20px;
         }
 
-        .collected {
-            border-color: green;
+        .control-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 40vw;
+        }
+
+        .controls button {
+            background-color: #444;
+            border: none;
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #666;
         }
 
         .collect-input {
+            margin-top: 20px;
+        }
+
+        .collected-pair {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .collected-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+        }
+
+        .collected-page img {
+            width: 100px;
+            height: 75px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+        }
+
+        .collected-page-number {
+            margin-top: 5px;
             text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .delete-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: red;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
         }
 
         .modal {
@@ -80,7 +175,6 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
             background-color: rgba(0, 0, 0, 0.5);
         }
 
@@ -92,450 +186,389 @@
             max-width: 800px;
             background-color: white;
             text-align: center;
-        }
-
-        body.dark-mode .modal-content {
-            background-color: #444;
-            color: white;
+            color: #333;
         }
 
         .modal-close {
             color: #aaa;
-            float: right;
             font-size: 28px;
             font-weight: bold;
-        }
-
-        .modal-close:hover,
-        .modal-close:focus {
-            color: black;
-            text-decoration: none;
+            float: right;
             cursor: pointer;
+            transition: color 0.3s;
         }
 
-        .modal img {
-            max-width: 100%;
-            max-height: 80vh;
-        }
-
-        .dark-mode-toggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 101;
-        }
-
-        .collected-pair {
-            display: flex;
-            align-items: center;
-            margin: 5px;
-            cursor: pointer;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .collected-pair img {
-            width: 50px;
-            height: 75px;
-            margin-right: 10px;
-        }
-
-        .remove-icon {
-            margin-left: 10px;
-            cursor: pointer;
-            color: red;
-            font-size: 18px;
-        }
-
-        .error-message {
-            color: red;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .page-heading {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .collect-input-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        #collectedPages {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            background-color: inherit;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 20px;
-            max-height: 175px;
-            overflow-y: auto;
-        }
-
-        body.dark-mode #collectedPages {
-            border-color: #555;
-        }
-
-        #content {
-            margin-top: 360px;
+        .modal-close:hover {
+            color: #000;
         }
 
         .highlighted {
             background-color: yellow;
         }
 
-        body.dark-mode .highlighted {
+        @media (max-width: 768px) {
+            .pages-container {
+                flex-direction: column;
+            }
+
+            .page {
+                width: 80vw;
+                height: 50vh;
+            }
+
+            .collected-pair {
+                flex-direction: column;
+            }
+
+            .collected-page img {
+                width: 75px;
+                height: 56px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .control-wrapper {
+                width: 80vw;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                width: 90vw;
+                height: 60vh;
+            }
+
+            .collected-page img {
+                width: 60px;
+                height: 45px;
+            }
+        }
+
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #c7c7c7;
+        }
+
+        .light-mode {
+            background-color: white;
+            color: black;
+        }
+
+        .dark-mode .page {
+            background-color: #333;
+            border-color: #4b4b4b;
+        }
+
+        .dark-mode .controls button {
+            background-color: #666;
+            color: #ddd;
+        }
+
+        .dark-mode .controls button:hover {
+            background-color: #888;
+        }
+
+        .dark-mode .collected-pair {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        .dark-mode .page-label,
+        .dark-mode .page-number,
+        .dark-mode .collected-page-number {
+            color: #ddd;
+        }
+
+        .dark-mode .collected-page img {
+            border-color: #444;
+        }
+
+        .dark-mode .modal-content {
+            background-color: #444;
+            border-color: #555;
+            color: #c7c7c7;
+        }
+
+        .dark-mode .highlighted {
             background-color: #555;
+        }
+
+        .collected-pair-container-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .collected-pair-container {
+            width: 80%;
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .collected-pair-list {
+            display: flex;
+        }
+
+        .delete-all-button-container {
+            margin: 20px 0;
+        }
+
+        .delete-all-button {
+            background-color: #ff4444;
+            border: none;
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .delete-all-button:hover {
+            background-color: #ff6666;
         }
     </style>
 </head>
 
 <body>
-    <button class="dark-mode-toggle" id="toggleDarkMode">Enable Dark Mode</button>
-
-    <div id="fixedContainer">
-        <div class="book">
-            <div>
-                <div class="page-heading">Front</div>
-                <div class="page" id="page1">
-                    <img src="" alt="Page 0 Image" />
-                </div>
+    <button id="toggleDarkMode" class="dark-mode-toggle-button">Disable Dark Mode</button>
+    <div class="main-display">
+        <div class="pages-container">
+            <div class="page-wrapper">
+                <div class="page-label">Front</div>
+                <div id="page1" class="page"><img src="" alt="Page 1 Image"></div>
+                <div class="control-wrapper"><button id="prev"><i class="fas fa-arrow-left"></i></button></div>
             </div>
-            <div>
-                <div class="page-heading">Back</div>
-                <div class="page" id="page2">
-                    <img src="" alt="Page 1 Image" />
-                </div>
+            <div class="page-wrapper">
+                <div class="page-label">Back</div>
+                <div id="page2" class="page"><img src="" alt="Page 2 Image"></div>
+                <div class="control-wrapper"><button id="next"><i class="fas fa-arrow-right"></i></button></div>
             </div>
         </div>
-        <div class="controls">
-            <button id="prev">Previous</button>
-            <button id="next">Next</button>
-        </div>
-
-        <!-- Center collect-input section -->
-        <div class="collect-input-container">
-            <div class="collect-input">
-                <strong>Enter Page Number to Collect:</strong>
-                <input type="number" id="pageInput" min="0">
-                <button id="collect">Collect Page</button>
-            </div>
-        </div>
-
-        <!-- Error Message Container -->
-        <div id="errorMessage" class="error-message"></div>
-
-        <!-- Vertical scrolling list of collected pages-->
-        <div id="collectedPages">
-            <strong>Collected Pages:</strong>
-            <div id="collectedPairs"></div>
+        <div class="collect-input">
+            <strong>Enter Page Number to Collect:</strong>
+            <input type="number" id="pageInput" min="0">
+            <button id="collect">Collect Page</button>
         </div>
     </div>
-
-    <div id="content">
-        <!-- Modal for large image view -->
-        <div id="imageModal" class="modal">
-            <div class="modal-content">
-                <span class="modal-close">&times;</span>
-                <img id="modalImage" src="" alt="Large Page Image">
-            </div>
+    <div class="collected-pair-container-wrapper">
+        <div class="collected-pair-container">
+            <div id="collectedPairs" class="collected-pair-list"></div>
+        </div>
+    </div>
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" src="" alt="Large Page Image">
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const images = [
-                'https://i.imgur.com/iBmxdGk.jpg',
-                'https://i.imgur.com/kAyUiaA.jpg',
-                'https://i.imgur.com/oiYG98N.jpg',
-                'https://i.imgur.com/xR3cVqL.jpg',
-                'https://i.imgur.com/Ga0Fctk.jpg',
-                'https://i.imgur.com/pdYFgnW.jpg',
-                'https://i.imgur.com/v1KnfZy.jpg',
-                'https://i.imgur.com/oIKPatm.jpg',
-                'https://i.imgur.com/KI4AGxR.jpg',
-                'https://i.imgur.com/y2pV4p5.jpg',
-                'https://i.imgur.com/F2yxZzN.jpg',
-                'https://i.imgur.com/xUF5lLn.jpg',
-                'https://i.imgur.com/R8oxAQO.jpg',
-                'https://i.imgur.com/UXqYLlt.jpg',
-                'https://i.imgur.com/o93mzrH.jpg',
-                'https://i.imgur.com/ne9rS0Q.jpg',
-                'https://i.imgur.com/1Ckt8v9.jpg',
-                'https://i.imgur.com/n50MC4A.jpg',
-                'https://i.imgur.com/QkAsNQq.jpg',
-                'https://i.imgur.com/TOrXdN8.jpg',
-                'https://i.imgur.com/uU9k2Q7.jpg',
-                'https://i.imgur.com/AEUmRyI.jpg',
-                'https://i.imgur.com/UkGqaeV.png',
-                'https://i.imgur.com/weE7juo.jpg',
-                'https://i.imgur.com/SENywyS.jpg',
-                'https://i.imgur.com/Bt2OKom.jpg',
-                'https://i.imgur.com/Dxc1wEi.jpg',
-                'https://i.imgur.com/N9qNDLq.jpg',
-                'https://i.imgur.com/JK8HVpx.jpg',
-                'https://i.imgur.com/o2fvMLL.png',
-                'https://i.imgur.com/FCtwjov.jpg',
-                'https://i.imgur.com/XKJShSI.jpg',
-                'https://i.imgur.com/nSr0Ltt.jpg',
-                'https://i.imgur.com/2z86kDo.jpg',
-                'https://i.imgur.com/NFoEYcA.jpg',
-                'https://i.imgur.com/BwzxGvD.jpg',
-                'https://i.imgur.com/1YI27G9.jpg',
-                'https://i.imgur.com/DW4wjkp.jpg',
-                'https://i.imgur.com/qm8U77a.jpg',
-                'https://i.imgur.com/en4sglE.jpg',
-                'https://i.imgur.com/nUwtUHt.jpg',
-                'https://i.imgur.com/yZCJLIB.jpg',
-                'https://i.imgur.com/jN1Bdrb.jpg',
-                'https://i.imgur.com/YCm2Sm6.jpg',
-                'https://i.imgur.com/SF44B11.jpg',
-                'https://i.imgur.com/cjuzMId.jpg',
-                'https://i.imgur.com/UNsqfD6.jpg',
-                'https://i.imgur.com/e5rXb4z.jpg',
-                'https://i.imgur.com/CxiKrdP.jpg',
-                'https://i.imgur.com/SEPkhCi.jpg',
-                'https://i.imgur.com/Qa2eiEj.jpg',
-                'https://i.imgur.com/C7hLNnF.png',
-                'https://i.imgur.com/UKcTtbp.png',
-                'https://i.imgur.com/mZjptWv.png',
-                'https://i.imgur.com/b1yc7Gz.png',
-                'https://i.imgur.com/uZU9b37.jpg'
+                'https://i.imgur.com/iBmxdGk.jpg', 'https://i.imgur.com/kAyUiaA.jpg', 
+                'https://i.imgur.com/oiYG98N.jpg', 'https://i.imgur.com/xR3cVqL.jpg',
+                'https://i.imgur.com/Ga0Fctk.jpg', 'https://i.imgur.com/pdYFgnW.jpg',
+                'https://i.imgur.com/v1KnfZy.jpg', 'https://i.imgur.com/oIKPatm.jpg',
+                'https://i.imgur.com/KI4AGxR.jpg', 'https://i.imgur.com/y2pV4p5.jpg',
+                'https://i.imgur.com/F2yxZzN.jpg', 'https://i.imgur.com/xUF5lLn.jpg',
+                'https://i.imgur.com/R8oxAQO.jpg', 'https://i.imgur.com/UXqYLlt.jpg',
+                'https://i.imgur.com/o93mzrH.jpg', 'https://i.imgur.com/ne9rS0Q.jpg',
+                'https://i.imgur.com/1Ckt8v9.jpg', 'https://i.imgur.com/n50MC4A.jpg',
+                'https://i.imgur.com/QkAsNQq.jpg', 'https://i.imgur.com/TOrXdN8.jpg',
+                'https://i.imgur.com/uU9k2Q7.jpg', 'https://i.imgur.com/AEUmRyI.jpg',
+                'https://i.imgur.com/UkGqaeV.png', 'https://i.imgur.com/weE7juo.jpg',
+                'https://i.imgur.com/SENywyS.jpg', 'https://i.imgur.com/Bt2OKom.jpg',
+                'https://i.imgur.com/Dxc1wEi.jpg', 'https://i.imgur.com/N9qNDLq.jpg',
+                'https://i.imgur.com/JK8HVpx.jpg', 'https://i.imgur.com/o2fvMLL.png',
+                'https://i.imgur.com/FCtwjov.jpg', 'https://i.imgur.com/XKJShSI.jpg',
+                'https://i.imgur.com/nSr0Ltt.jpg', 'https://i.imgur.com/2z86kDo.jpg',
+                'https://i.imgur.com/NFoEYcA.jpg', 'https://i.imgur.com/BwzxGvD.jpg',
+                'https://i.imgur.com/1YI27G9.jpg', 'https://i.imgur.com/DW4wjkp.jpg',
+                'https://i.imgur.com/qm8U77a.jpg', 'https://i.imgur.com/en4sglE.jpg',
+                'https://i.imgur.com/nUwtUHt.jpg', 'https://i.imgur.com/yZCJLIB.jpg',
+                'https://i.imgur.com/jN1Bdrb.jpg', 'https://i.imgur.com/YCm2Sm6.jpg',
+                'https://i.imgur.com/SF44B11.jpg', 'https://i.imgur.com/cjuzMId.jpg',
+                'https://i.imgur.com/UNsqfD6.jpg', 'https://i.imgur.com/e5rXb4z.jpg',
+                'https://i.imgur.com/CxiKrdP.jpg', 'https://i.imgur.com/SEPkhCi.jpg',
+                'https://i.imgur.com/Qa2eiEj.jpg', 'https://i.imgur.com/C7hLNnF.png',
+                'https://i.imgur.com/UKcTtbp.png', 'https://i.imgur.com/mZjptWv.png',
+                'https://i.imgur.com/b1yc7Gz.png', 'https://i.imgur.com/uZU9b37.jpg'
             ];
 
-            const blankImageUrl = 'https://i.imgur.com/vn59zkJ.jpeg';
+        
 
-            let currentPage = 0;
-            const collectedPages = new Set(JSON.parse(localStorage.getItem('collectedPages') || '[]'));
-            const page1Element = document.getElementById('page1');
-            const page2Element = document.getElementById('page2');
-            const collectedPairsElement = document.getElementById('collectedPairs');
-            const modal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            const modalClose = document.querySelector('.modal-close');
-            const toggleDarkModeButton = document.getElementById('toggleDarkMode');
-            const body = document.body;
-            const errorMessageElement = document.getElementById('errorMessage');
+    const blankImageUrl = 'https://i.imgur.com/vn59zkJ.jpeg';
+    const elements = {
+        page1: document.getElementById('page1'),
+        page2: document.getElementById('page2'),
+        collectedPairs: document.getElementById('collectedPairs'),
+        modal: document.getElementById('imageModal'),
+        modalImage: document.getElementById('modalImage'),
+        toggleDarkModeButton: document.getElementById('toggleDarkMode'),
+        pageInput: document.getElementById('pageInput')
+    };
 
-            const displayError = (message) => {
-                errorMessageElement.textContent = message;
-            };
+    const pages = [elements.page1, elements.page2];
+    let currentPage = 0;
+    let collectedPages = new Set(JSON.parse(localStorage.getItem('collectedPages') || '[]'));
 
-            const clearError = () => {
-                errorMessageElement.textContent = '';
-            };
+    const toggleClass = (el, className, condition) => el.classList.toggle(className, condition);
+    const getPairStartIndex = (pageNumber) => pageNumber % 2 === 0 ? pageNumber : pageNumber - 1;
 
-            // Load dark mode setting from localStorage
-            const loadDarkModeSetting = () => {
-                const isDarkMode = localStorage.getItem('darkMode') === 'true';
-                if (isDarkMode) {
-                    body.classList.add('dark-mode');
-                    body.classList.remove('light-mode');
-                    toggleDarkModeButton.textContent = 'Disable Dark Mode';
-                } else {
-                    body.classList.add('light-mode');
-                    body.classList.remove('dark-mode');
-                    toggleDarkModeButton.textContent = 'Enable Dark Mode';
-                }
-            };
+    const showLargeImage = (src) => {
+        elements.modalImage.src = src;
+        elements.modal.style.display = "block";
+    };
 
-            // Save dark mode setting to localStorage
-            const saveDarkModeSetting = () => {
-                const isDarkMode = body.classList.contains('dark-mode');
-                localStorage.setItem('darkMode', isDarkMode);
-            };
+    const updatePageContent = (page, pageNumber) => {
+        const img = page.querySelector('img');
+        const collected = collectedPages.has(pageNumber);
+        img.src = collected ? images[pageNumber] || blankImageUrl : blankImageUrl;
+        toggleClass(page, 'collected', collected);
+    };
 
-            // Calculate the pair a given page belongs to
-            const getPairStartIndex = (pageNumber) => {
-                return pageNumber % 2 === 0 || pageNumber === images.length - 1 ? pageNumber : pageNumber - 1;
-            };
+    const updatePages = () => {
+        pages.forEach((page, i) => updatePageContent(page, currentPage + i));
+        highlightCurrentPair();
+    };
 
-            const highlightCurrentPair = () => {
-                document.querySelectorAll('.collected-pair').forEach(pair => {
-                    pair.classList.remove('highlighted');
-                });
+    const findAdjacentCollectedPage = (startPage, direction) => {
+        for (let i = startPage; i >= 0 && i < images.length; i += direction) {
+            if (collectedPages.has(i)) return getPairStartIndex(i);
+        }
+        return direction === 1 ? startPage : 0;
+    };
 
-                const currentPairDiv = document.getElementById(`pair-${currentPage}`);
-                if (currentPairDiv) {
-                    currentPairDiv.classList.add('highlighted');
-                }
-            };
+    const createPageThumbnail = (src, number) => `
+        <div class="collected-page">
+            <img src="${src}" alt="Page ${number}">
+            <div class="collected-page-number">Page ${number}</div>
+        </div>
+    `;
 
-            const updatePages = () => {
-                clearError();
-                const page1Img = page1Element.querySelector('img');
-                const page2Img = page2Element.querySelector('img');
+    const createPagePair = (pair) => `
+        <div id="pair-${pair}" class="collected-pair" data-pair="${pair}">
+            ${createPageThumbnail(images[pair], pair)}
+            ${pair + 1 < images.length ? createPageThumbnail(images[pair + 1], pair + 1) : ''}
+            <i class="fas fa-trash delete-icon" data-pair="${pair}" title="Delete"></i>
+        </div>
+    `;
 
-                const page1Index = currentPage;
-                const page2Index = currentPage + 1;
+    const updateCollectedList = () => {
+        const sortedPairs = Array.from(new Set([...collectedPages].map(getPairStartIndex))).sort((a, b) => a - b);
 
-                const page1Src = collectedPages.has(page1Index) ? images[page1Index] : blankImageUrl;
-                const page2Src = page2Index < images.length ? (collectedPages.has(page2Index) ? images[page2Index] : blankImageUrl) : blankImageUrl;
+        elements.collectedPairs.innerHTML = sortedPairs.map(createPagePair).join('');
 
-                page1Img.src = page1Src;
-                page2Img.src = page2Src;
-
-                page1Img.alt = `Page ${page1Index}`;
-                page2Img.alt = page2Index < images.length ? `Page ${page2Index}` : '';
-
-                page1Element.classList.toggle('collected', collectedPages.has(page1Index));
-                page2Element.classList.toggle('collected', collectedPages.has(page2Index));
-
-                highlightCurrentPair();
-            };
-
-            const findPreviousCollectedPage = (startPage) => {
-                for (let i = startPage; i >= 0; i--) {
-                    if (collectedPages.has(i)) {
-                        return getPairStartIndex(i);
-                    }
-                }
-                return 0;
-            };
-
-            const findNextCollectedPage = (startPage) => {
-                for (let i = startPage; i < images.length; i++) {
-                    if (collectedPages.has(i)) {
-                        return getPairStartIndex(i);
-                    }
-                }
-                return startPage;
-            };
-
-            const isLastCollectedPair = (page) => {
-                const highestCollectedPage = Math.max(...collectedPages);
-                const lastCollectedPair = getPairStartIndex(highestCollectedPage);
-                return page >= lastCollectedPair;
-            };
-
-            const updateCollectedList = () => {
-                clearError();
-                collectedPairsElement.innerHTML = '';
-                const sortedPages = [...collectedPages].sort((a, b) => a - b);
-                const pairs = new Set(sortedPages.map(getPairStartIndex));
-
-                pairs.forEach((pair) => {
-                    const pairDiv = document.createElement('div');
-                    pairDiv.id = `pair-${pair}`;
-                    pairDiv.classList.add('collected-pair');
-                    const img1 = document.createElement('img');
-                    img1.src = images[pair] || blankImageUrl;
-                    img1.alt = `Page ${pair}`;
-
-                    pairDiv.appendChild(img1);
-
-                    if (pair + 1 < images.length) {
-                        const img2 = document.createElement('img');
-                        img2.src = images[pair + 1] || blankImageUrl;
-                        img2.alt = `Page ${pair + 1}`;
-                        pairDiv.appendChild(img2);
-                    }
-
-                    const removeIcon = document.createElement('i');
-                    removeIcon.classList.add('fas', 'fa-trash-alt', 'remove-icon');
-                    removeIcon.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent page jump on remove icon click
-                        collectedPages.delete(pair);
-                        collectedPages.delete(pair + 1);
-                        updatePages();
-                        updateCollectedList();
-                    });
-
-                    pairDiv.appendChild(removeIcon);
-                    pairDiv.addEventListener('click', () => {
-                        currentPage = pair;
-                        updatePages();
-                    });
-
-                    collectedPairsElement.appendChild(pairDiv);
-                });
-
-                localStorage.setItem('collectedPages', JSON.stringify([...collectedPages]));
-                highlightCurrentPair();
-            };
-
-            document.getElementById('prev').addEventListener('click', () => {
-                clearError();
-                currentPage = findPreviousCollectedPage(currentPage - 2);
+        document.querySelectorAll('.collected-pair').forEach(pairElement =>
+            pairElement.addEventListener('click', () => {
+                currentPage = parseInt(pairElement.dataset.pair, 10);
                 updatePages();
+                highlightCurrentPair();
+            })
+        );
+
+        document.querySelectorAll('.delete-icon').forEach(icon =>
+            icon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const pair = parseInt(event.target.dataset.pair, 10);
+                collectedPages.delete(pair);
+                collectedPages.delete(pair + 1);
+                updatePages();
+                updateCollectedList();
+            })
+        );
+
+        localStorage.setItem('collectedPages', JSON.stringify([...collectedPages]));
+        highlightCurrentPair();
+    };
+
+    const highlightCurrentPair = () => {
+        document.querySelectorAll('.collected-pair').forEach(pair => pair.classList.remove('highlighted'));
+        const currentPairDiv = document.getElementById(`pair-${currentPage}`);
+        if (currentPairDiv) {
+            currentPairDiv.classList.add('highlighted');
+            currentPairDiv.scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+                block: 'nearest'
             });
+        }
+    };
 
-            document.getElementById('next').addEventListener('click', () => {
-                clearError();
-                if (isLastCollectedPair(currentPage + 2)) {
-                    displayError("You've reached the last collected pair of pages.");
-                } else {
-                    currentPage = findNextCollectedPage(currentPage + 2);
-                    updatePages();
-                }
-            });
+    elements.toggleDarkModeButton.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        document.body.classList.toggle('light-mode');
+        elements.toggleDarkModeButton.textContent = document.body.classList.contains('dark-mode') ? 'Disable Dark Mode' : 'Enable Dark Mode';
+        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    });
 
-            document.getElementById('collect').addEventListener('click', () => {
-                clearError();
-                const pageNumber = parseInt(document.getElementById('pageInput').value, 10);
-                if (!isNaN(pageNumber) && pageNumber >= 0 && pageNumber < images.length) {
-                    const startPage = getPairStartIndex(pageNumber);
-                    collectedPages.add(startPage);
-                    collectedPages.add(startPage + 1);
-                    currentPage = startPage; // Update to display the newly collected pair
-                    updatePages();
-                    updateCollectedList();
-                } else {
-                    displayError("Invalid page number. Please enter a valid number.");
-                }
-            });
+    document.getElementById('prev').addEventListener('click', () => {
+        currentPage = findAdjacentCollectedPage(currentPage - 2, -1);
+        updatePages();
+    });
 
-            // Click event to show larger image
-            const showLargeImage = (src) => {
-                clearError();
-                modalImage.src = src;
-                modal.style.display = "block";
-            };
+    document.getElementById('next').addEventListener('click', () => {
+        const highestCollectedPage = Math.max(...collectedPages);
+        if (currentPage >= getPairStartIndex(highestCollectedPage)) {
+            alert("You've reached the last collected pair of pages.");
+        } else {
+            currentPage = findAdjacentCollectedPage(currentPage + 2, 1);
+            updatePages();
+        }
+    });
 
-            page1Element.addEventListener('click', () => {
-                const img = page1Element.querySelector('img');
-                if (img.src !== blankImageUrl) {
-                    showLargeImage(img.src);
-                }
-            });
-
-            page2Element.addEventListener('click', () => {
-                const img = page2Element.querySelector('img');
-                if (img.src !== blankImageUrl) {
-                    showLargeImage(img.src);
-                }
-            });
-
-            modalClose.addEventListener('click', () => {
-                modal.style.display = "none";
-            });
-
-            // Toggle dark mode
-            toggleDarkModeButton.addEventListener('click', () => {
-                body.classList.toggle('dark-mode');
-                body.classList.toggle('light-mode');
-                if (body.classList.contains('dark-mode')) {
-                    toggleDarkModeButton.textContent = 'Disable Dark Mode';
-                } else {
-                    toggleDarkModeButton.textContent = 'Enable Dark Mode';
-                }
-                saveDarkModeSetting();
-            });
-
-            // Initialize the app
-            loadDarkModeSetting();
+    document.getElementById('collect').addEventListener('click', () => {
+        const pageNumber = parseInt(elements.pageInput.value, 10);
+        if (!isNaN(pageNumber) && pageNumber >= 0 && pageNumber < images.length) {
+            const startPage = getPairStartIndex(pageNumber);
+            collectedPages.add(startPage);
+            collectedPages.add(startPage + 1);
+            currentPage = startPage;
             updatePages();
             updateCollectedList();
+        } else {
+            alert("Invalid page number. Please enter a valid number.");
+        }
+    });
+
+    pages.forEach(page => {
+        page.addEventListener('click', () => {
+            const imgSrc = page.querySelector('img').src;
+            if (imgSrc !== blankImageUrl) showLargeImage(imgSrc);
         });
+    });
+
+    elements.modal.querySelector('.modal-close').addEventListener('click', () => {
+        elements.modal.style.display = "none";
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === elements.modal) elements.modal.style.display = "none";
+    });
+
+    elements.modalImage.addEventListener('click', () => {
+        if (elements.modalImage.src) window.open(elements.modalImage.src, '_blank');
+    });
+
+    const loadDarkModeSetting = () => {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        document.body.classList.toggle('light-mode', !isDarkMode);
+        elements.toggleDarkModeButton.textContent = isDarkMode ? 'Disable Dark Mode' : 'Enable Dark Mode';
+    };
+
+    loadDarkModeSetting();
+    updatePages();
+    updateCollectedList();
+});
     </script>
 </body>
-
 </html>
